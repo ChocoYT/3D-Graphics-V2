@@ -37,11 +37,13 @@ if __name__ == "__main__":
     glEnable(GL_DEPTH_TEST)
     glEnable(GL_LIGHTING)
     
-    glLight(GL_LIGHT0, GL_POSITION, (5, -5, 0, 1))
+    glLight(GL_LIGHT0, GL_POSITION, (5, 5, 5, 1))
     glLightfv(GL_LIGHT0, GL_AMBIENT,  (1.0, 1.0, 1.0, 1.0))
     glLightfv(GL_LIGHT0, GL_DIFFUSE,  (1.0, 1.0, 1.0, 1.0))
-    glLightfv(GL_LIGHT0, GL_SPECULAR, (1.0, 1.0, 0.0, 1.0))
+    glLightfv(GL_LIGHT0, GL_SPECULAR, (1.0, 1.0, 1.0, 1.0))
     glEnable(GL_LIGHT0)
+    
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, (0.0, 1.0, 0.0, 1.0))
     
     mesh = Cube(GL_POLYGON, f"{path}\\Textures\\Pavement-Painted-Concrete.tif")
     
@@ -54,6 +56,7 @@ if __name__ == "__main__":
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         
         glRotatef(1, 1, 0, 1)
+        
         mesh.draw()
         
         pygame.display.flip()
