@@ -5,6 +5,7 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from os import getcwd
 
+from loadMesh import *
 from object import *
 from transform import *
 
@@ -48,12 +49,18 @@ if __name__ == "__main__":
     
     objects: list[Object] = []
     
+    '''
     cube = Object("Cube")
     cube.addComponent(Transform((0, 0, 0)))
     cube.addComponent(Cube(GL_POLYGON,
                            f"{path}\\Textures\\Pavement-Painted-Concrete.tif"
         ))
     objects.append(cube)
+    '''
+    mesh = Object("Teapot")
+    mesh.addComponent(Transform((0, 0, 0)))
+    mesh.addComponent(LoadMesh(GL_POLYGON, f"{path}\\Models\\teapot.obj"))
+    objects.append(mesh)
     
     moveSpeed = float(defaults['camera']['moveSpeed'])
     rotateSpeed = float(defaults['camera']['rotateSpeed'])
