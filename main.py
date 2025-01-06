@@ -5,7 +5,8 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from os import getcwd
 
-from mesh import *
+from object import *
+from transform import *
 
 pygame.init()
 
@@ -45,19 +46,48 @@ if __name__ == "__main__":
     
     glMaterialfv(GL_FRONT, GL_DIFFUSE, (0.0, 1.0, 0.0, 1.0))
     
-    mesh = Cube(GL_POLYGON, f"{path}\\Textures\\Pavement-Painted-Concrete.tif")
+    objects: list[Object] = []
+    
+    cube = Object("Cube")
+    cube.addComponent(Transform((0, 0, 0)))
+    cube.addComponent(Cube(GL_POLYGON,
+                           f"{path}\\Textures\\Pavement-Painted-Concrete.tif"
+        ))
+    objects.append(cube)
+    
+    moveSpeed = float(defaults['camera']['moveSpeed'])
+    rotateSpeed = float(defaults['camera']['rotateSpeed'])
+    
+    mousePos = pygame.mouse.get_pos()
+    mouseButtons = pygame.mouse.get_pressed()
     
     run = True
     while run:
+        keys = pygame.key.get_pressed()
+        
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == QUIT:
                 run = False
+            elif event.type == MOUSEMOTION:
+                mousePos = pygame.mouse.get_pos()
+            elif event.type == MOUSEBUTTONDOWN:
+                mouseButtons = pygame.mouse.get_pressed()
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         
-        glRotatef(1, 1, 0, 1)
         
-        mesh.draw()
+        for o in objects:
+            transform: Transform = o.getComponent(Transform)
+            if not transform is None:
+                transform.moveX((keys[K_a] - keys[K_d]) * moveSpeed)
+                transform.moveY((keys[K_e] - keys[K_q]) * moveSpeed)
+                transform.moveZ((keys[K_w] - keys[K_s]) * moveSpeed)
+
+                transform.rotateX((keys[K_DOWN] - keys[K_UP]) * rotateSpeed)
+                transform.rotateY((keys[K_RIGHT] - keys[K_LEFT]) * rotateSpeed)
+                transform.rotateZ((keys[K_z] - keys[K_c]) * rotateSpeed)
+            
+            o.update()
         
         pygame.display.flip()
         clock.tick(FPS)

@@ -1,8 +1,6 @@
 import pygame
 from OpenGL.GL import *
 
-pygame.init()
-
 class Mesh3D:
     def __init__(self) -> None:
         self.vertices:  list[tuple[float]]
@@ -41,7 +39,7 @@ class Mesh3D:
             
 class Cube(Mesh3D):
     def __init__(self, drawType, filename):
-        Mesh3D.__init__(self)
+        super().__init__()
         
         self.vertices = [
             ( 0.5, -0.5,  0.5),
@@ -101,3 +99,17 @@ class Cube(Mesh3D):
         self.texture = pygame.image.load(filename)
         self.drawType = drawType
         self.initTexture()
+        
+class Cursor(Mesh3D):
+    def __init__(self):
+        super().__init__()
+        
+        self.vertices = [
+            
+        ]
+        self.triangles = [
+            
+        ]
+        self.uvs = [
+            
+        ]
