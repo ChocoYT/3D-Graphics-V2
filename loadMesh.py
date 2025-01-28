@@ -1,22 +1,25 @@
+import numpy as np
+
+from graphicsData import GraphicsData
 from mesh import *
+from utils import compileShader, createProgram
 
 class LoadMesh(Mesh3D):
-    def __init__(self, drawType, modelFilename) -> None:
+    def __init__(self, vaoRef, material, drawType, modelFilename, textureFilename = "", backFaceCull = False) -> None:
         super().__init__()
         
         self.vertices, self.triangles = self.loadMesh(modelFilename)
+        self.coordinates = self.formatVertices(self.vertices, self.triangles)
+        
         self.drawType = drawType
+        self.vaoRef = vaoRef
+        
+        position = GraphicsData("vec3", self.coordinates)
+        position.createVar(material.programID, "position")
         
     def draw(self) -> None:
-        for t in range(0, len(self.triangles), 3):
-            glBegin(self.drawType)
-            
-            glVertex3fv(self.vertices[self.triangles[  t  ]])
-            glVertex3fv(self.vertices[self.triangles[t + 1]])
-            glVertex3fv(self.vertices[self.triangles[t + 2]])
-            
-            glEnd()
-        glDisable(GL_TEXTURE_2D)
+        glBindVertexArray(self.vaoRef)
+        glDrawArrays(self.drawType, 0, len(self.coordinates))
         
     def loadMesh(self, filename) -> tuple[list[tuple[float] | int]]:
         vertices = []
@@ -39,3 +42,13 @@ class LoadMesh(Mesh3D):
                 line = f.readline()
                 
             return vertices, triangles
+
+    def formatVertices(self, coordinates, triangles):
+        allTriangles = []
+        
+        for t in range(0, len(triangles), 3):
+            allTriangles.append(coordinates[triangles[  t  ]])
+            allTriangles.append(coordinates[triangles[t + 1]])
+            allTriangles.append(coordinates[triangles[t + 2]])
+            
+        return np.array(allTriangles, np.float32)

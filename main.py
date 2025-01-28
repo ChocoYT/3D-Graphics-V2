@@ -5,11 +5,40 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from os import getcwd
 
-from loadMesh import *
-from object import *
-from transform import *
+from button import Button
+from camera import Camera
+from loadMesh import LoadMesh
+from material import Material
+from mesh import Cube, Cursor
+from object import Object
+from transform import Transform
 
 pygame.init()
+
+def set2D() -> None:
+    glMatrixMode(GL_PROJECTION)
+    glLoadMatrixf(camera.getPPM())
+    #glLoadIdentity()
+    
+    #gluOrtho2D(0, screenWidth, 0, screenHeight)
+    
+    glMatrixMode(GL_MODELVIEW)
+    glLoadIdentity()
+    
+    glViewport(0, 0, screenWidth, screenHeight)
+
+def set3D() -> None:
+    glMatrixMode(GL_PROJECTION)
+    glLoadMatrixf(camera.getPPM())
+    #glLoadIdentity()
+    
+    #gluPerspective(FOV, aspectRatio, NEAR, FAR)
+    
+    glMatrixMode(GL_MODELVIEW)
+    glLoadIdentity()
+    glViewport(0, 0, screenWidth, screenHeight)
+    glEnable(GL_DEPTH_TEST)
+    glEnable(GL_CULL_FACE)
 
 if __name__ == "__main__":
 
@@ -24,42 +53,42 @@ if __name__ == "__main__":
     clock = pygame.time.Clock()
     pygame.display.set_caption("3D Graphics V2")
     
+    pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLEBUFFERS, 1)
+    pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLESAMPLES, 4)
+    pygame.display.gl_set_attribute(pygame.GL_CONTEXT_PROFILE_MASK, pygame.GL_CONTEXT_PROFILE_CORE)
+    pygame.display.gl_set_attribute(pygame.GL_DEPTH_SIZE, 32)
+    
     FOV  = float(defaults['camera']['FOV'])
     NEAR = float(defaults['camera']['NEAR'])
     FAR  = float(defaults['camera']['FAR'])
     
     aspectRatio = screenWidth / screenHeight
+    camera = Camera(aspectRatio / FOV, aspectRatio, NEAR, FAR)
     
-    glMatrixMode(GL_PROJECTION)
-    gluPerspective(FOV, aspectRatio, NEAR, FAR)
-    
-    glMatrixMode(GL_MODELVIEW)
-    glTranslatef(0.0, 0.0, -3.0)
+    set3D()
     
     glEnable(GL_DEPTH_TEST)
     glEnable(GL_LIGHTING)
-    
-    glLight(GL_LIGHT0, GL_POSITION, (5, 5, 5, 1))
-    glLightfv(GL_LIGHT0, GL_AMBIENT,  (1.0, 1.0, 1.0, 1.0))
-    glLightfv(GL_LIGHT0, GL_DIFFUSE,  (1.0, 1.0, 1.0, 1.0))
-    glLightfv(GL_LIGHT0, GL_SPECULAR, (1.0, 1.0, 1.0, 1.0))
+    glLight(GL_LIGHT0, GL_POSITION, (5, 5, 5, 0))
+    glLightfv(GL_LIGHT0, GL_AMBIENT,  (1.0, 0.0, 1.0, 1.0))
+    glLightfv(GL_LIGHT0, GL_DIFFUSE,  (1.0, 1.0, 0.0, 1.0))
+    glLightfv(GL_LIGHT0, GL_SPECULAR, (0.0, 1.0, 0.0, 1.0))
     glEnable(GL_LIGHT0)
     
     glMaterialfv(GL_FRONT, GL_DIFFUSE, (0.0, 1.0, 0.0, 1.0))
     
     objects: list[Object] = []
+    material = Material(f"{path}\\Shaders\\vertex.glsl", f"{path}\\Shaders\\fragment.glsl")
     
-    '''
-    cube = Object("Cube")
-    cube.addComponent(Transform((0, 0, 0)))
-    cube.addComponent(Cube(GL_POLYGON,
-                           f"{path}\\Textures\\Pavement-Painted-Concrete.tif"
-        ))
-    objects.append(cube)
-    '''
     mesh = Object("Teapot")
-    mesh.addComponent(Transform((0, 0, 0)))
-    mesh.addComponent(LoadMesh(GL_POLYGON, f"{path}\\Models\\teapot.obj"))
+    mesh.addComponent(Transform())
+    mesh.addComponent(LoadMesh(mesh.vaoRef, material, GL_LINE_LOOP, f"{path}\\Models\\teapot.obj"))
+    mesh.addComponent(material)
+    
+    transform: Transform = mesh.getComponent(Transform)
+    transform.rotateY(0)
+    transform.updatePosition(pygame.Vector3(0, -2, -200))
+    
     objects.append(mesh)
     
     moveSpeed = float(defaults['camera']['moveSpeed'])
@@ -72,7 +101,8 @@ if __name__ == "__main__":
     while run:
         keys = pygame.key.get_pressed()
         
-        for event in pygame.event.get():
+        events = pygame.event.get()
+        for event in events:
             if event.type == QUIT:
                 run = False
             elif event.type == MOUSEMOTION:
@@ -82,19 +112,15 @@ if __name__ == "__main__":
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         
+        camera.update()
+        set3D()
+        
+        print(f"Camera Position: {camera.transform.getPosition()}")
         
         for o in objects:
-            transform: Transform = o.getComponent(Transform)
-            if not transform is None:
-                transform.moveX((keys[K_a] - keys[K_d]) * moveSpeed)
-                transform.moveY((keys[K_e] - keys[K_q]) * moveSpeed)
-                transform.moveZ((keys[K_w] - keys[K_s]) * moveSpeed)
-
-                transform.rotateX((keys[K_DOWN] - keys[K_UP]) * rotateSpeed)
-                transform.rotateY((keys[K_RIGHT] - keys[K_LEFT]) * rotateSpeed)
-                transform.rotateZ((keys[K_z] - keys[K_c]) * rotateSpeed)
+            o.update(camera, events)
             
-            o.update()
+        set2D()
         
         pygame.display.flip()
         clock.tick(FPS)
