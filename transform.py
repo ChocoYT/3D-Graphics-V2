@@ -104,6 +104,12 @@ class Transform:
             self.MVM = self.MVM @ matrix
         else:
             self.MVM = matrix @ self.MVM
+            
+    def updateRotation(self, rotation, local = True) -> None:
+        x, y, z = rotation
+        self.rotateX(x, local)
+        self.rotateY(y, local)
+        self.rotateZ(z, local)
         
     def getRotation(self):
         xDir = math.atan2( self.MVM[2, 1], self.MVM[2, 2])

@@ -11,6 +11,8 @@ class Mesh3D:
         self.drawType = GL_LINE_LOOP
         self.texID: int
         
+        self.time = 0
+        
     def initTexture(self) -> None:
         self.texID = glGenTextures(1)
         textureData = pygame.image.tostring(self.texture, "RGB", True)

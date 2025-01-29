@@ -69,6 +69,7 @@ if __name__ == "__main__":
     
     glEnable(GL_DEPTH_TEST)
     glEnable(GL_LIGHTING)
+
     glLight(GL_LIGHT0, GL_POSITION, (5, 5, 5, 0))
     glLightfv(GL_LIGHT0, GL_AMBIENT,  (1.0, 0.0, 1.0, 1.0))
     glLightfv(GL_LIGHT0, GL_DIFFUSE,  (1.0, 1.0, 0.0, 1.0))
@@ -82,12 +83,11 @@ if __name__ == "__main__":
     
     mesh = Object("Teapot")
     mesh.addComponent(Transform())
-    mesh.addComponent(LoadMesh(mesh.vaoRef, material, GL_LINE_LOOP, f"{path}\\Models\\teapot.obj"))
+    mesh.addComponent(LoadMesh(mesh.vaoRef, material, GL_TRIANGLES, f"{path}\\Models\\teapot.obj"))
     mesh.addComponent(material)
     
     transform: Transform = mesh.getComponent(Transform)
-    transform.rotateY(0)
-    transform.updatePosition(pygame.Vector3(0, -2, -200))
+    transform.updatePosition(pygame.Vector3(0, -2, -1000))
     
     objects.append(mesh)
     
@@ -96,6 +96,8 @@ if __name__ == "__main__":
     
     mousePos = pygame.mouse.get_pos()
     mouseButtons = pygame.mouse.get_pressed()
+    
+    dt: float = None
     
     run = True
     while run:
@@ -115,15 +117,13 @@ if __name__ == "__main__":
         camera.update()
         set3D()
         
-        print(f"Camera Position: {camera.transform.getPosition()}")
-        
         for o in objects:
-            o.update(camera, events)
+            o.update(camera, dt, events)
             
         set2D()
         
         pygame.display.flip()
-        clock.tick(FPS)
+        dt = clock.tick(FPS) / 1000
                 
 pygame.quit()
 exit()

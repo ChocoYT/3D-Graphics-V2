@@ -20,7 +20,7 @@ def compileShader(shaderType, shaderSource):
         
         error = f"\n{error.decode("utf-8")}"
         
-        raise Exception(err)
+        raise Exception(error)
     
     return shaderID
 

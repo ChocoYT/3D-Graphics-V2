@@ -19,7 +19,10 @@ class GraphicsData:
         varID = glGetAttribLocation(programID, varName)
         glBindBuffer(GL_ARRAY_BUFFER, self.bufferRef)
         
-        if self.dataType == "vec3":
+        if self.dataType == "float":
+            glVertexAttribPointer(varID, 1, GL_FLOAT, False, 0, None)
+        
+        elif self.dataType == "vec3":
             glVertexAttribPointer(varID, 3, GL_FLOAT, False, 0, None)
             
         elif self.dataType == "vec2":

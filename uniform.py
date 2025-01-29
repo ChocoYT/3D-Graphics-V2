@@ -11,6 +11,9 @@ class Uniform:
         self.varID = glGetUniformLocation(programID, varName)
         
     def load(self) -> None:
+        if self.dataType == "float":
+            glUniform1f(self.varID, self.data)
+        
         if self.dataType == "vec3":
             glUniform3f(self.varID, self.data[0], self.data[1], self.data[2])
             

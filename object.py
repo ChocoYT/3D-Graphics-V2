@@ -15,6 +15,8 @@ class Object:
         self.vaoRef = glGenVertexArrays(1)
         glBindVertexArray(self.vaoRef)
         
+        self.time = 0
+        
     def addComponent(self, component) -> None:
         if isinstance(component, Transform):
             self.components.insert(0, component)
@@ -31,7 +33,7 @@ class Object:
             else:
                 return None
         
-    def update(self, camera: Camera, events = None) -> None:
+    def update(self, camera: Camera, dt, events = None) -> None:
         self.material.use()
         
         for c in self.components:
@@ -48,7 +50,12 @@ class Object:
                 transformation.findVar(self.material.programID, "model_mat")
                 transformation.load()
                 
+                time = Uniform("float", self.time)
+                time.findVar(self.material.programID, "time")
+                time.load()
+                
             elif isinstance(c, LoadMesh):
                 c.draw()
                 
-                
+        if not dt is None:
+            self.time += dt
