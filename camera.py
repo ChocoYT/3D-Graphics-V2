@@ -53,7 +53,7 @@ class Camera:
         keys = pygame.key.get_pressed()
         
         moveX = keys[K_d] - keys[K_a]
-        moveY = keys[K_q] - keys[K_e]
+        moveY = keys[K_e] - keys[K_q]
         moveZ = keys[K_w] - keys[K_s]
         moveVector = pygame.Vector3(moveX, moveY, moveZ)
         if moveVector.length() > 0:

@@ -83,7 +83,7 @@ if __name__ == "__main__":
     
     mesh = Object("Teapot")
     mesh.addComponent(Transform())
-    mesh.addComponent(LoadMesh(mesh.vaoRef, material, GL_TRIANGLES, f"{path}\\Models\\teapot.obj"))
+    mesh.addComponent(LoadMesh(mesh.vaoRef, material, GL_TRIANGLES, f"{path}\\Models\\teapot.obj", f"{path}\\Textures\\Pavement-Painted-Concrete.tif"))
     mesh.addComponent(material)
     
     transform: Transform = mesh.getComponent(Transform)
